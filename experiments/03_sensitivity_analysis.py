@@ -125,6 +125,7 @@ def run_sensitivity_1comp(
     test_mode: bool = False,
     out_dir:   "Path | None" = None,
     device:    str = "cpu",
+    n_subset:  "list | None" = None,   # npr. [10, 12] — pokreni samo te N vrednosti
 ) -> None:
     eff_dir  = Path(out_dir) if out_dir else TAB_DIR
     eff_dir.mkdir(parents=True, exist_ok=True)
@@ -141,6 +142,9 @@ def run_sensitivity_1comp(
     n_values     = N_VALUES[:2]     if test_mode else N_VALUES
     sigma_values = SIGMA_VALUES[:2] if test_mode else SIGMA_VALUES
     n_seeds      = 2                if test_mode else N_SEEDS
+
+    if n_subset is not None:
+        n_values = [n for n in n_values if n in n_subset]
 
     total = total_runs(n_values, sigma_values, n_seeds)
     done  = 0
@@ -226,6 +230,7 @@ def run_sensitivity_2comp(
     test_mode: bool = False,
     out_dir:   "Path | None" = None,
     device:    str = "cpu",
+    n_subset:  "list | None" = None,   # npr. [10] ili [12] — pokreni samo te N vrednosti
 ) -> None:
     eff_dir  = Path(out_dir) if out_dir else TAB_DIR
     eff_dir.mkdir(parents=True, exist_ok=True)
@@ -242,6 +247,9 @@ def run_sensitivity_2comp(
     n_values     = N_VALUES[:2]     if test_mode else N_VALUES
     sigma_values = SIGMA_VALUES[:2] if test_mode else SIGMA_VALUES
     n_seeds      = 2                if test_mode else N_SEEDS
+
+    if n_subset is not None:
+        n_values = [n for n in n_values if n in n_subset]
 
     total = total_runs(n_values, sigma_values, n_seeds)
     done  = 0

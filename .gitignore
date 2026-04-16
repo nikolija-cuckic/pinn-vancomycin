@@ -1,23 +1,27 @@
-# Markdown (osim README.md)
-*.md
-!README.md
-
 # Python
 __pycache__/
 *.py[cod]
 *.pyo
+
+# Virtuelno okruženje
+.venv/
 venv/
 .env
 
 # Jupyter
 .ipynb_checkpoints/
+
+# Generisani podaci (reproducibilni iz data_processing.py)
+data/raw/
+data/processed/
+
+# Generisani rezultati (reproducibilni iz experiments/)
+results/figures/
+results/tables/
+
+# Alati i konfiguracija
 .claude/
 *.docx
-
-# Rezultati i podaci (opciono, zakomentiši ako hoćeš da pratiš)
-# results/
-# data/raw/
-# data/processed/
 
 # OS
 .DS_Store
