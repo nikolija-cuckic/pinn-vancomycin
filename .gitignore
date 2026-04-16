@@ -12,6 +12,7 @@ venv/
 # Jupyter
 .ipynb_checkpoints/
 .claude/
+*.docx
 
 # Rezultati i podaci (opciono, zakomentiši ako hoćeš da pratiš)
 # results/

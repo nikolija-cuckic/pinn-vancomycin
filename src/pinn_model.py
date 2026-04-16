@@ -122,7 +122,7 @@ class OneCompartmentPINN(nn.Module):
         t_norm ∈ [0,1] — normalizovano vreme
         t_max_h        — faktor skaliranja za dC/dt
         """
-        t_norm = t_norm.requires_grad_(True)
+        t_norm = t_norm.detach().requires_grad_(True)  # svež list, grad se ne akumulira na t_col
         C_norm = self.net(t_norm)
         dC_dtnorm = _grad(C_norm, t_norm)
 
@@ -139,9 +139,7 @@ class OneCompartmentPINN(nn.Module):
         """
         t0    = torch.zeros(1, 1, device=self.device)
         C_pred = self.net(t0)
-        C0_true_norm = torch.tensor([[self.dose / (self.Vd.item() * C_max)]],
-                                     device=self.device)
-        # IC penalizuje i Vd kroz C0
+        # (self.dose / self.Vd) čuva Vd u computation graph → gradijent teče ka log_Vd
         C0_norm_expected = (self.dose / self.Vd) / C_max
         return (C_pred - C0_norm_expected) ** 2
 
@@ -238,7 +236,7 @@ class TwoCompartmentPINN(nn.Module):
         Reziduali oba ODJ u normalizovanom prostoru.
         C1_norm, C2_norm normalizovani istim faktorom C1_max.
         """
-        t_norm = t_norm.requires_grad_(True)
+        t_norm = t_norm.detach().requires_grad_(True)  # svež list, grad se ne akumulira na t_col
         out    = self.net(t_norm)              # (N, 2)
         C1_norm = out[:, 0:1]
         C2_norm = out[:, 1:2]
@@ -290,7 +288,7 @@ class TwoCompartmentPINN(nn.Module):
     ) -> tuple:
         L_data = self.data_loss(t_data_norm, C1_data_norm)
         L_phys = self.physics_loss(t_col_norm, t_max_h)
-        L_ic   = self.ic_loss(C1_max)
+        L_ic   = self.ic_loss(C1_max).squeeze()
         total  = L_data + self.lam_phys * L_phys + self.lam_ic * L_ic
         return total, L_data, L_phys, L_ic
 
@@ -321,7 +319,8 @@ def train_pinn(
     """
     Trenira PINN (OneCompartmentPINN ili TwoCompartmentPINN).
 
-    Vraća listu loss vrednosti po eposi (Adam faza).
+    Vraća listu rečnika po eposi (Adam faza):
+        [{"total": float, "data": float, "phys": float, "ic": float}, ...]
     L-BFGS faza koristi closure pattern koji PyTorch zahteva.
     """
     device = model.device
@@ -344,7 +343,12 @@ def train_pinn(
         )
         total.backward()
         optimizer.step()
-        history.append(total.item())
+        history.append({
+            "total": total.item(),
+            "data":  L_data.item(),
+            "phys":  L_phys.item(),
+            "ic":    L_ic.item(),
+        })
 
         if verbose and epoch % 500 == 0:
             print(f"  Adam {epoch:5d} | total={total.item():.4e} "

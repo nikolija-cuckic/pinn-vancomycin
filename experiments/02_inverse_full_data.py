@@ -25,6 +25,7 @@ import pandas as pd
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+import torch
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -98,7 +99,6 @@ def run_1comp():
     print(f"  err_k10={bench_e['err_k10']:.3f}%, err_Vd={bench_e['err_Vd']:.3f}%")
 
     # ── Predvidjanje na gustoj mrezi ───────────────────────────────────────────
-    import torch
     T_norm_dense = torch.tensor(T_DENSE / T_MAX_H, dtype=torch.float32).reshape(-1, 1)
     with torch.no_grad():
         C_pinn_norm = model(T_norm_dense).numpy().flatten()
@@ -132,10 +132,15 @@ def run_1comp():
 
     # Loss kriva (Adam faza)
     ax = axes[1]
-    ax.semilogy(history, lw=1.2, color="steelblue")
+    epochs = range(len(history))
+    ax.semilogy(epochs, [h["total"] for h in history], lw=1.5, color="steelblue", label="Ukupni")
+    ax.semilogy(epochs, [h["data"]  for h in history], lw=1.0, color="tomato",    label="Data",    linestyle="--")
+    ax.semilogy(epochs, [h["phys"]  for h in history], lw=1.0, color="seagreen",  label="Physics", linestyle="--")
+    ax.semilogy(epochs, [h["ic"]    for h in history], lw=1.0, color="darkorange", label="IC",     linestyle="--")
     ax.set_xlabel("Epoha (Adam)")
-    ax.set_ylabel("Ukupni loss")
+    ax.set_ylabel("Loss")
     ax.set_title("Konvergencija PINN-a (Adam faza)")
+    ax.legend(fontsize=9)
     ax.grid(True, alpha=0.3)
 
     plt.tight_layout()
@@ -209,7 +214,6 @@ def run_2comp():
               f"(greska {bench_e.get('err_'+k, float('nan')):.2f}%)")
 
     # ── Predvidjanje ──────────────────────────────────────────────────────────
-    import torch
     T_norm_dense = torch.tensor(T_DENSE / T_MAX_H, dtype=torch.float32).reshape(-1, 1)
     with torch.no_grad():
         out_dense = model(T_norm_dense).numpy()
@@ -228,9 +232,8 @@ def run_2comp():
         C1_bench = np.full(len(T_DENSE), np.nan)
 
     def pinn_pred_C1(t):
-        import torch as _torch
-        tn = _torch.tensor(t / T_MAX_H, dtype=_torch.float32).reshape(-1, 1)
-        with _torch.no_grad():
+        tn = torch.tensor(t / T_MAX_H, dtype=torch.float32).reshape(-1, 1)
+        with torch.no_grad():
             return model(tn).numpy()[:, 0] * C1_max
 
     rmse_pinn  = curve_rmse(pinn_pred_C1, t_h, C1_true)
@@ -258,10 +261,15 @@ def run_2comp():
 
     # Loss kriva
     ax = axes[1]
-    ax.semilogy(history, lw=1.2, color="steelblue")
+    epochs = range(len(history))
+    ax.semilogy(epochs, [h["total"] for h in history], lw=1.5, color="steelblue", label="Ukupni")
+    ax.semilogy(epochs, [h["data"]  for h in history], lw=1.0, color="tomato",    label="Data",    linestyle="--")
+    ax.semilogy(epochs, [h["phys"]  for h in history], lw=1.0, color="seagreen",  label="Physics", linestyle="--")
+    ax.semilogy(epochs, [h["ic"]    for h in history], lw=1.0, color="darkorange", label="IC",     linestyle="--")
     ax.set_xlabel("Epoha (Adam)")
-    ax.set_ylabel("Ukupni loss")
+    ax.set_ylabel("Loss")
     ax.set_title("Konvergencija PINN-a (Adam faza)")
+    ax.legend(fontsize=9)
     ax.grid(True, alpha=0.3)
 
     plt.tight_layout()
