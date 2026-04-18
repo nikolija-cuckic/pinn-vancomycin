@@ -99,8 +99,8 @@ class OneCompartmentPINN(nn.Module):
         self.net = PKNet(hidden_layers, hidden_size, n_outputs=1)
 
         # Parametri u log-prostoru; inicijalizacija na tipičnim vrednostima
-        self.log_k10 = nn.Parameter(torch.tensor([np.log(0.08)]))  # k10 ~ 0.08 1/h
-        self.log_Vd  = nn.Parameter(torch.tensor([np.log(50.0)]))  # Vd  ~ 50 L
+        self.log_k10 = nn.Parameter(torch.tensor([np.log(0.15)]))  # k10 ~ 0.08 1/h
+        self.log_Vd  = nn.Parameter(torch.tensor([np.log(30.0)]))  # Vd  ~ 50 L
 
         self.to(self.device)
 
@@ -212,10 +212,10 @@ class TwoCompartmentPINN(nn.Module):
         self.net = PKNet(hidden_layers, hidden_size, n_outputs=2)
 
         # Inicijalizacija na populacionim sredinama
-        self.log_k10 = nn.Parameter(torch.tensor([np.log(0.30)]))
-        self.log_k12 = nn.Parameter(torch.tensor([np.log(0.15)]))
-        self.log_k21 = nn.Parameter(torch.tensor([np.log(0.30)]))
-        self.log_V1  = nn.Parameter(torch.tensor([np.log(30.0)]))
+        self.log_k10 = nn.Parameter(torch.tensor([np.log(0.30)]))   #bilo 0.10
+        self.log_k12 = nn.Parameter(torch.tensor([np.log(0.15)]))   #0.20
+        self.log_k21 = nn.Parameter(torch.tensor([np.log(0.30)]))   #0.10
+        self.log_V1  = nn.Parameter(torch.tensor([np.log(30.0)]))   #20
 
         self.to(self.device)
 
