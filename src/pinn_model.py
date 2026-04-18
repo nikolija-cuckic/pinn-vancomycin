@@ -212,10 +212,10 @@ class TwoCompartmentPINN(nn.Module):
         self.net = PKNet(hidden_layers, hidden_size, n_outputs=2)
 
         # Inicijalizacija na populacionim sredinama
-        self.log_k10 = nn.Parameter(torch.tensor([np.log(0.10)]))
-        self.log_k12 = nn.Parameter(torch.tensor([np.log(0.20)]))
-        self.log_k21 = nn.Parameter(torch.tensor([np.log(0.10)]))
-        self.log_V1  = nn.Parameter(torch.tensor([np.log(20.0)]))
+        self.log_k10 = nn.Parameter(torch.tensor([np.log(0.30)]))
+        self.log_k12 = nn.Parameter(torch.tensor([np.log(0.15)]))
+        self.log_k21 = nn.Parameter(torch.tensor([np.log(0.30)]))
+        self.log_V1  = nn.Parameter(torch.tensor([np.log(30.0)]))
 
         self.to(self.device)
 

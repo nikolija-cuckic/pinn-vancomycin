@@ -22,6 +22,7 @@ results/tables/
 # Alati i konfiguracija
 .claude/
 *.docx
+*.txt
 
 # OS
 .DS_Store
